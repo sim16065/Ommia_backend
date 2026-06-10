@@ -1,30 +1,31 @@
 // ChangePasswordRequest.java
-package com.community.user.dto.request;
+package com.mia.community.dto.user.request;
+
+import com.mia.community.common.ValidationMessage;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class ChangePasswordRequest {
+
+    @NotBlank(message = ValidationMessage.NEW_PASSWORD_REQUIRED)
+    @Size(min = 8, max = 20, message = ValidationMessage.PASSWORD_SIZE)
+    @Pattern(
+            regexp = ValidationMessage.PASSWORD_REGEXP,
+            message = ValidationMessage.PASSWORD_PATTERN
+    )
     private String newPassword;
+
+    @NotBlank(message = ValidationMessage.CONFIRM_PASSWORD_REQUIRED)
     private String confirmPassword;
 
     public ChangePasswordRequest() {}
-
-    public ChangePasswordRequest(String newPassword, String confirmPassword) {
-        this.newPassword = newPassword;
-        this.confirmPassword = confirmPassword;
-    }
 
     public String getNewPassword() {
         return newPassword;
     }
 
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
-
     public String getConfirmPassword() {
         return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
     }
 }

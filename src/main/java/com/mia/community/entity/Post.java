@@ -1,4 +1,4 @@
-package com.mia.community.domain;
+package com.mia.community.entity;
 
 import jakarta.persistence.*;
 
@@ -12,8 +12,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String title;
@@ -24,24 +25,34 @@ public class Post {
     @Column
     private String imageUrl;
 
-    @Column(name = "view", nullable = false)
+    @Column(nullable = false)
     private long viewCount = 0;
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public  Post() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
+    protected Post() {}
 
-    public Post(Long userId, String title, String content, String imageUrl) {
-        this.userId  = userId;
+    public Post(User user, String title, String content, String imageUrl) {
+        this.user  = user;
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
         this.viewCount = 0;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -49,18 +60,13 @@ public class Post {
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public  void increaseViewCount() {
-        this.viewCount++;
     }
 
     public Long getId() {
         return id;
     }
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
     public String getTitle() {
         return title;
@@ -68,8 +74,16 @@ public class Post {
     public String getContent() {
         return content;
     }
-    public String getImageUrl() {return  imageUrl; }
-    public long getViewCount() { return viewCount; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getImageUrl() {
+        return  imageUrl;
+    }
+    public long getViewCount() {
+        return viewCount;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

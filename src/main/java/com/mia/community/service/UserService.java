@@ -1,87 +1,90 @@
-package com.community.user.service;
+package com.mia.community.service;
 
-import com.community.user.domain.User;
+import com.mia.community.common.exception.CustomException;
+import com.mia.community.common.exception.ErrorCode;
+import com.mia.community.entity.User;
 import com.mia.community.dto.user.request.ChangePasswordRequest;
-import com.mia.community.dto.user.request.LoginRequest;
 import com.mia.community.dto.user.request.SignupRequest;
 import com.mia.community.dto.user.request.UpdateUserRequest;
-import com.mia.community.dto.user.response.LoginResponse;
 import com.mia.community.dto.user.response.SignupResponse;
 import com.mia.community.dto.user.response.UserResponse;
-import com.community.user.repository.UserRepository;
+import com.mia.community.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    // 사용자 프로필 조회
     public UserResponse getProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return UserResponse.from(user);
     }
 
+     // 회원가입
+    // 이메일과 닉네임 중복 확인 후, 비밀번호 암호화하여 저장
     public SignupResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (userRepository.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
         User user = new User(
                 request.getEmail(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getNickname(),
                 request.getProfileImage()
         );
 
-        User savedUser = userRepository.save(user);
-
-        return SignupResponse.from(savedUser);
+        return SignupResponse.from(userRepository.save(user));
     }
 
-    public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("로그인에 실패했습니다."));
-
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new IllegalArgumentException("로그인에 실패했습니다.");
-        }
-
-        return new LoginResponse(user.getId(), "fake-access-token");
-    }
-
+    // 사용자 프로필 수정
     public UserResponse update(Long userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        user.setNickname(request.getNickname());
-        user.setProfileImage(request.getProfileImage());
+        if (!user.getNickname().equals(request.getNickname())
+                && userRepository.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
 
-        User updatedUser = userRepository.save(user);
+        user.updateProfile(request.getNickname(), request.getProfileImage());
 
-        return UserResponse.from(updatedUser);
+        return UserResponse.from(userRepository.save(user));
     }
 
-    public void changePassword(Long userId, ChangePasswordRequest request) {
+    // 비밀번호 변경
+    public void updatePassword(Long userId, ChangePasswordRequest request) {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        user.setPassword(request.getNewPassword());
+        user.changePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
+    // 사용자 삭제
     public void delete(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        userRepository.deleteById(userId);
+        userRepository.delete(user);
     }
 }

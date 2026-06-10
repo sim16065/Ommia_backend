@@ -11,15 +11,15 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtAuthenticationUtil {
 
     private final SecretKey key;
     private final long expiration;
     private final long refreshExpiration;
 
-    public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration}") long expiration,
-                   @Value("${jwt.refresh-expiration}") long refreshExpiration) {
+    public JwtAuthenticationUtil(@Value("${jwt.secret}") String secret,
+                                 @Value("${jwt.expiration}") long expiration,
+                                 @Value("${jwt.refresh-expiration}") long refreshExpiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.expiration = expiration;
         this.refreshExpiration = refreshExpiration;

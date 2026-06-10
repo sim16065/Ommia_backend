@@ -1,4 +1,4 @@
-package com.mia.community.dto.user.response;
+package com.mia.community.dto.auth.response;
 
 public class LoginResponse {
     private final Long userId;

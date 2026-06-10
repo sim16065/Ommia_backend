@@ -1,15 +1,15 @@
-package com.community.user.controller;
+package com.mia.community.controller;
 
-import com.community.common.response.ApiResponse;
-import com.community.user.dto.request.ChangePasswordRequest;
-import com.community.user.dto.request.LoginRequest;
-import com.community.user.dto.request.SignupRequest;
-import com.community.user.dto.request.UpdateUserRequest;
-import com.community.user.dto.response.LoginResponse;
-import com.community.user.dto.response.SignupResponse;
-import com.community.user.dto.response.UserResponse;
-import com.community.user.service.UserService;
+import com.mia.community.common.response.ApiResponse;
+import com.mia.community.dto.user.request.ChangePasswordRequest;
+import com.mia.community.dto.user.request.SignupRequest;
+import com.mia.community.dto.user.request.UpdateUserRequest;
+import com.mia.community.dto.user.response.SignupResponse;
+import com.mia.community.dto.user.response.UserResponse;
+import com.mia.community.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,63 +22,52 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignupResponse>> signup(@RequestBody SignupRequest request) {
-        try {
-            SignupResponse response = userService.signup(request);
+    // 회원가입
+    @PostMapping
+    public ResponseEntity<ApiResponse<SignupResponse>> signup(
+            @Valid @RequestBody SignupRequest request) {
+        SignupResponse response = userService.signup(request);
 
             return ResponseEntity
                     .status(201)
-                    .body(new ApiResponse<>("회원가입이 완료되었습니다.", response));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(400)
-                    .body(new ApiResponse<>("invalid_request", null));
-        }
+                    .body(ApiResponse.success("회원가입이 완료되었습니다.", response));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = userService.login(request);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>("로그인에 성공했습니다.", response)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(401)
-                    .body(new ApiResponse<>("login_failed", null));
-        }
-    }
-
-
+    // 내 회원 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> getProfile(@PathVariable Long userId) {
-
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile(
+            @AuthenticationPrincipal Long userId) {
         UserResponse response = userService.getProfile(userId);
-        return ResponseEntity.ok(new ApiResponse<>("회원 정보를 성공적으로 불러왔습니다.", response));
+
+        return ResponseEntity.ok(ApiResponse.success("회원 정보를 성공적으로 불러왔습니다.", response));
     }
 
+    // 내 회원 정보 수정
     @PatchMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> update(
-            @PathVariable Long userId,
-            @RequestBody UpdateUserRequest request) {
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UpdateUserRequest request) {
         UserResponse response = userService.update(userId, request);
-        return ResponseEntity.ok(new ApiResponse<>("회원 정보가 수정되었습니다.", response));
+
+        return ResponseEntity.ok(ApiResponse.success("회원 정보가 수정되었습니다.", response));
     }
 
+    // 비밀번호 변경
     @PatchMapping("/me/password")
-    public ResponseEntity<ApiResponse<UserResponse>> changePassword(
-            @PathVariable Long userId,
-            @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(userId, request);
-        return ResponseEntity.ok(new ApiResponse<>("비밀번호가 변경되었습니다.", null));
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        userService.updatePassword(userId, request);
+
+        return ResponseEntity.ok(ApiResponse.success("비밀번호가 변경되었습니다.", null));
     }
 
+    // 회원 탈퇴
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<?>> delete(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @AuthenticationPrincipal Long userId) {
         userService.delete(userId);
-        return ResponseEntity.ok(new ApiResponse<>("회원 탈퇴가 완료되었습니다.", null));
+
+        return ResponseEntity.ok(ApiResponse.success("회원 탈퇴가 완료되었습니다.", null));
     }
 }

@@ -1,4 +1,4 @@
-package com.community.comment.dto.request;
+package com.mia.community.dto.comment.request;
 
 public class CommentUpdateRequest {
     private String content;
@@ -8,5 +8,9 @@ public class CommentUpdateRequest {
 
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

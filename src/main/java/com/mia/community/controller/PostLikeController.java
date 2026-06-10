@@ -1,23 +1,35 @@
-package com.community.like.controller;
+package com.mia.community.controller;
 
-import com.community.common.response.ApiResponse;
+import com.mia.community.common.response.ApiResponse;
+import com.mia.community.dto.postlike.response.PostLikeResponse;
+import com.mia.community.service.PostLikeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/posts")
 public class PostLikeController {
+
+    private final PostLikeService postLikeService;
+
+    public PostLikeController(PostLikeService postLikeService) {
+        this.postLikeService = postLikeService;
+    }
+
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponse<?>> addLike(@PathVariable Long postId) {
-        Long userId = 1L;  // 임시
-        postService.addLike(postId, userId);
-        return ResponseEntity.ok(new ApiResponse<>("게시물을 좋아합니다.", null));
+    public ResponseEntity<ApiResponse<PostLikeResponse>> addLike(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal Long userId) {
+        PostLikeResponse response = postLikeService.addLike(postId, userId);
+        return ResponseEntity.ok(ApiResponse.success("게시물 좋아요가 추가되었습니다.", response));
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponse<?>> removeLike(@PathVariable Long postId) {
-        Long userId = 1L;  // 임시
-        postService.removeLike(postId, userId);
-        return ResponseEntity.ok(new ApiResponse<>("좋아요가 취소되었습니다.", null));
+    public ResponseEntity<ApiResponse<PostLikeResponse>> removeLike(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal Long userId) {
+        PostLikeResponse response = postLikeService.removeLike(postId, userId);
+        return ResponseEntity.ok( ApiResponse.success("좋아요가 취소되었습니다.", response));
     }
 }

@@ -11,10 +11,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
-public class JwtFilter extends OncePerRequestFilter  {
-    private final JwtUtil jwtUtil;
+public class JwtAuthenticationFilter extends OncePerRequestFilter  {
+    private final JwtAuthenticationUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtAuthenticationUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 

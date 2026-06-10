@@ -1,14 +1,14 @@
-package com.community.comment.controller;
+package com.mia.community.controller;
 
-import com.community.common.response.ApiResponse;
-import com.community.comment.dto.request.CommentCreateRequest;
-import com.community.comment.dto.request.CommentUpdateRequest;
-import com.community.comment.dto.response.CommentResponse;
-import com.community.comment.service.CommentService;
+import com.mia.community.common.response.ApiResponse;
+import com.mia.community.dto.comment.request.CommentCreateRequest;
+import com.mia.community.dto.comment.request.CommentUpdateRequest;
+import com.mia.community.dto.comment.response.CommentListResponse;
+import com.mia.community.dto.comment.response.CommentResponse;
+import com.mia.community.service.CommentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/posts/{postId}/comments")
@@ -21,74 +21,39 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
-            @PathVariable Long postId
-    ) {
-        try {
-            List<CommentResponse> response = commentService.getComments(postId);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>("get_comments_success", response)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(404)
-                    .body(new ApiResponse<>("post_not_found", null));
-        }
+    public ResponseEntity<ApiResponse<CommentListResponse>> getComments(
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        CommentListResponse response = commentService.getComments(postId, cursor, pageSize);
+        return ResponseEntity.ok( ApiResponse.success("댓글을 성공적으로 불러왔습니다.", response));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CommentResponse>> createComment(
             @PathVariable Long postId,
-            @RequestBody CommentCreateRequest request
-    ) {
-        try {
-            CommentResponse response = commentService.createComment(postId, request);
-
-            return ResponseEntity
-                    .status(201)
-                    .body(new ApiResponse<>("create_comment_success", response));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(404)
-                    .body(new ApiResponse<>("post_not_found", null));
-        }
+            @AuthenticationPrincipal Long userId,
+            @RequestBody CommentCreateRequest request) {
+        CommentResponse response = commentService.createComment(postId, userId, request);
+        return ResponseEntity.status(201).body(ApiResponse.success("댓글이 등록되었습니다.", response));
     }
 
     @PatchMapping("/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponse>> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
-            @RequestBody CommentUpdateRequest request
-    ) {
-        try {
-            CommentResponse response = commentService.updateComment(postId, commentId, request);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>("update_comment_success", response)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(404)
-                    .body(new ApiResponse<>("comment_not_found", null));
-        }
+            @AuthenticationPrincipal Long userId,
+            @RequestBody CommentUpdateRequest request) {
+        CommentResponse response = commentService.updateComment(postId, commentId, userId, request);
+        return ResponseEntity.ok(ApiResponse.success("댓글이 수정되었습니다.", response));
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long postId,
-            @PathVariable Long commentId
-    ) {
-        try {
-            commentService.deleteComment(postId, commentId);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>("delete_comment_success", null)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(404)
-                    .body(new ApiResponse<>("comment_not_found", null));
-        }
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal Long userId) {
+       commentService.deleteComment(postId, commentId, userId);
+       return ResponseEntity.ok(ApiResponse.success("댓글이 삭제되었습니다.", null));
     }
 }

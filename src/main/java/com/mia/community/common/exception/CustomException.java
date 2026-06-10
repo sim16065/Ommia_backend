@@ -1,14 +1,14 @@
-package com.mia.community.exception;
+package com.mia.community.common.exception;
 
 public class CustomException extends  RuntimeException {
-    private final String code;
+    private final ErrorCode errorCode;
 
-    public CustomException(String code, String message) {
-        super(message);
-        this.code = code;
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 
-    public String getCode() {
-        return code;
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
 }

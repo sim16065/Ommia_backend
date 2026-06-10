@@ -1,4 +1,4 @@
-package com.mia.community.domain;
+package com.mia.community.entity;
 
 import jakarta.persistence.*;
 

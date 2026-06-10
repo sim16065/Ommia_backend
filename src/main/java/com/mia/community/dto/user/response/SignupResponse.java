@@ -1,6 +1,6 @@
-package com.community.user.dto.response;
+package com.mia.community.dto.user.response;
 
-import com.community.user.domain.User;
+import com.mia.community.entity.User;
 
 public class SignupResponse {
     private final Long userId;

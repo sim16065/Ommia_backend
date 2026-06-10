@@ -1,58 +1,50 @@
-package com.community.comment.dto.response;
+package com.mia.community.dto.comment.response;
 
-import com.community.comment.domain.Comment;
+import com.mia.community.entity.Comment;
 
 import java.time.LocalDateTime;
 
 public class CommentResponse {
-    private Long commentId;
+    private Long Id;
     private Long postId;
+    private Long userId;
     private String content;
-    private String author;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public CommentResponse(Long commentId, Long postId, String content, String author,
-                           LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.commentId = commentId;
+    public CommentResponse(Long commentId, Long postId, Long userId, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.Id = commentId;
         this.postId = postId;
+        this.userId = userId;
         this.content = content;
-        this.author = author;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
     public static CommentResponse from(Comment comment) {
         return new CommentResponse(
-                comment.getCommentId(),
+                comment.getId(),
                 comment.getPostId(),
+                comment.getUserId(),
                 comment.getContent(),
-                comment.getAuthor(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt()
         );
     }
 
     public Long getCommentId() {
-        return commentId;
+        return Id;
     }
-
     public Long getPostId() {
         return postId;
     }
-
+    public Long getUserId() { return userId; }
     public String getContent() {
         return content;
     }
-
-    public String getAuthor() {
-        return author;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }

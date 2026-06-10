@@ -1,4 +1,4 @@
-package com.mia.community.domain;
+package com.mia.community.entity;
 
 import jakarta.persistence.*;
 
@@ -20,6 +20,7 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String nickname;
+
     private String profileImage;
 
     @Column(nullable = false, updatable = false)
@@ -57,8 +58,8 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public void changePassword(String password) {
-        this.password = password;
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
     // Getter
@@ -88,19 +89,5 @@ public class User {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    // 객체 정보를 문자열로 확인
-    // 보안상 password 제외
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", profileImage='" + profileImage + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
     }
 }
