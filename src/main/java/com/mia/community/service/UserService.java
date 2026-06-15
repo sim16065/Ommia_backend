@@ -46,7 +46,7 @@ public class UserService {
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 request.getNickname(),
-                request.getProfileImage()
+                request.getProfileImageUrl()
         );
 
         return SignupResponse.from(userRepository.save(user));

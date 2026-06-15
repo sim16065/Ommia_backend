@@ -42,7 +42,7 @@ public class SignupRequest {
         return nickname;
     }
 
-    public String getProfileImage() {
+    public String getProfileImageUrl() {
         return profileImage;
     }
 }

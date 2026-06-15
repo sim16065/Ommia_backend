@@ -29,7 +29,7 @@ public class PostLikeService {
             throw new CustomException(ErrorCode.ALREADY_LIKED_POST);
         }
 
-        PostLike postLike = new PostLike(postId, userId);
+        PostLike postLike = new PostLike(userId, postId);
         postLikeRepository.save(postLike);
 
         long likeCount = postLikeRepository.countByPostId(postId);
