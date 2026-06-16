@@ -42,7 +42,7 @@ public class PostLikeService {
             throw new CustomException(ErrorCode.POST_NOT_FOUND);
         }
 
-        postLikeRepository.deleteById(new PostLike.PostLikeId(postId, userId));
+        postLikeRepository.deleteById(new PostLike.PostLikeId(userId, postId));
 
         long likeCount = postLikeRepository.countByPostId(postId);
 

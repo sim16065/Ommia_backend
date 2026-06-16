@@ -40,8 +40,10 @@ public class PostController {
 
     // 특정 게시물 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long postId) {
-            PostResponse response = postService.getPost(postId);
+    public ResponseEntity<ApiResponse<PostResponse>> getPost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal Long userId) {
+            PostResponse response = postService.getPost(postId, userId);
             return ResponseEntity.ok(ApiResponse.success("게시물을 성공적으로 불러왔습니다.", response));
     }
 

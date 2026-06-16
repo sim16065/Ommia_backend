@@ -41,7 +41,7 @@ public class PostService {
 
         Post post = new Post(user, request.getTitle(), request.getContent(), request.getImageUrl());
 
-        return toResponse(postRepository.save(post));
+        return toResponse(postRepository.save(post), userId);
     }
 
     // 게시글 목록 조회
@@ -50,7 +50,7 @@ public class PostService {
         Page<Post> pageResult = postRepository.findAllWithUser(PageRequest.of(page - 1, DEFAULT_PAGE_SIZE));
 
         List<PostResponse> data = pageResult.stream()
-                .map(this::toResponse)
+                .map(post -> toResponse(post, null))
                 .collect(Collectors.toList());
 
         return new PostListResponse(
@@ -65,14 +65,14 @@ public class PostService {
 
      // 게시물 상세 조회: 조회 시 조회수 1 증가
     @Transactional
-     public PostResponse getPost(Long postId) {
+     public PostResponse getPost(Long postId, Long userId) {
          postRepository.increaseViewCount(postId);
 
          // 조회수 반영된 게시물 조회 후 반환
          Post post = postRepository.findById(postId)
                  .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-         return toResponse(post);
+         return toResponse(post, userId);
      }
 
     // 게시물 수정
@@ -86,7 +86,7 @@ public class PostService {
 
         post.update(request.getTitle(), request.getContent(), request.getImageUrl());
 
-        return toResponse(post);
+        return toResponse(post, userId);
     }
 
     // 게시물 삭제
@@ -102,9 +102,10 @@ public class PostService {
 
     // Post 엔티티를 PostResponse DTO로 변환
     // 좋아요 수는 Post 엔티티에 저장된 값이 아니므로 post_likes 테이블에서 별도로 조회
-    private PostResponse toResponse(Post post) {
+    private PostResponse toResponse(Post post, Long userId) {
         User user = post.getUser();
         long likeCount = postLikeRepository.countByPostId(post.getId());
+        boolean isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), userId); // 좋아요 여부 확인
 
         return new PostResponse(
                 post.getId(),
@@ -114,6 +115,7 @@ public class PostService {
                 post.getContent(),
                 post.getImageUrl(),
                 new PostStatsResponse(likeCount, post.getViewCount()),
+                isLiked,
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );
