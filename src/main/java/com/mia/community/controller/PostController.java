@@ -47,7 +47,7 @@ public class PostController {
             return ResponseEntity.ok(ApiResponse.success("게시물을 성공적으로 불러왔습니다.", response));
     }
 
-    @PatchMapping ("/{postId}")
+    @PutMapping ("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> updatePost(
             @PathVariable Long postId,
             @AuthenticationPrincipal Long userId,

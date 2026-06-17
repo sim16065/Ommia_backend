@@ -76,6 +76,7 @@ public class PostService {
      }
 
     // 게시물 수정
+    @Transactional
     public PostResponse updatePost(Long postId, Long userId, PostUpdateRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -90,6 +91,7 @@ public class PostService {
     }
 
     // 게시물 삭제
+    @Transactional
     public void deletePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
