@@ -2,16 +2,17 @@ package com.mia.community.dto.post.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.mia.community.entity.Post;
 
 import java.time.LocalDateTime;
 
 // 게시물 응답 반환 시, id가 맨앞에 오게끔 순서 명시
-@JsonPropertyOrder({"id", "userId", "nickname", "title", "content", "imageUrl", "stats", "isLiked", "createdAt", "updatedAt"})
+@JsonPropertyOrder({"id", "userId", "nickname", "profileImageUrl", "title", "content", "imageUrl", "stats", "isLiked", "createdAt", "updatedAt"})
 public class PostResponse {
-
     private final Long postId;
     private final Long userId;
     private final String nickname;
+    private final String profileImageUrl;
     private final String title;
     private final String content;
     private final String imageUrl;
@@ -20,23 +21,26 @@ public class PostResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public PostResponse(Long postId, Long userId, String nickname, String title, String content, String imageUrl, PostStatsResponse stats,
-                        boolean isLiked, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.postId = postId;
-        this.userId = userId;
-        this.nickname = nickname;
-        this.title = title;
-        this.content = content;
-        this.imageUrl = imageUrl;
-        this.stats = stats;
+    public PostResponse(Post post, boolean isLiked) {
+        this.postId = post.getId();
+        this.userId = post.getUser().getId();
+        this.nickname = post.getUser().getNickname();
+        this.profileImageUrl = post.getUser().getProfileImageUrl();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.imageUrl = post.getImageUrl();
+
+        this.stats = new PostStatsResponse(post.getLikeCount(), post.getViewCount());
+
         this.isLiked = isLiked;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.createdAt = post.getCreatedAt();
+        this.updatedAt = post.getUpdatedAt();
     }
 
     public Long getId() { return postId; }
     public Long getUserId() { return userId; }
     public String getNickname() { return nickname; }
+    public String getProfileImageUrl() { return profileImageUrl; }
     public String getTitle() { return title; }
     public String getContent() { return content; }
     public String getImageUrl() { return imageUrl; }

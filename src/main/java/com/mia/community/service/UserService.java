@@ -62,7 +62,7 @@ public class UserService {
             throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
-        user.updateProfile(request.getNickname(), request.getProfileImage());
+        user.updateProfile(request.getNickname(), request.getProfileImageUrl());
 
         return UserResponse.from(userRepository.save(user));
     }

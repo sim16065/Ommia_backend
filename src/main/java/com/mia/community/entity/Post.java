@@ -26,6 +26,9 @@ public class Post {
     private String imageUrl;
 
     @Column(nullable = false)
+    private long likeCount = 0;
+
+    @Column(nullable = false)
     private long viewCount = 0;
 
     @Column(nullable = false, updatable = false)
@@ -77,6 +80,7 @@ public class Post {
     public String getImageUrl() {
         return  imageUrl;
     }
+    public long getLikeCount() { return likeCount; }
     public long getViewCount() {
         return viewCount;
     }

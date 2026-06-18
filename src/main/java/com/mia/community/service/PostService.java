@@ -6,7 +6,6 @@ import com.mia.community.dto.post.request.PostCreateRequest;
 import com.mia.community.dto.post.request.PostUpdateRequest;
 import com.mia.community.dto.post.response.PostListResponse;
 import com.mia.community.dto.post.response.PostResponse;
-import com.mia.community.dto.post.response.PostStatsResponse;
 import com.mia.community.entity.Post;
 import com.mia.community.entity.User;
 import com.mia.community.repository.PostLikeRepository;
@@ -46,6 +45,7 @@ public class PostService {
 
     // 게시글 목록 조회
     // 작성자 정보:  fetch join으로 User 함께 조회
+    @Transactional(readOnly = true)
     public PostListResponse getAllPosts(int page) {
         Page<Post> pageResult = postRepository.findAllWithUser(PageRequest.of(page - 1, DEFAULT_PAGE_SIZE));
 
@@ -105,21 +105,8 @@ public class PostService {
     // Post 엔티티를 PostResponse DTO로 변환
     // 좋아요 수는 Post 엔티티에 저장된 값이 아니므로 post_likes 테이블에서 별도로 조회
     private PostResponse toResponse(Post post, Long userId) {
-        User user = post.getUser();
-        long likeCount = postLikeRepository.countByPostId(post.getId());
         boolean isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), userId); // 좋아요 여부 확인
 
-        return new PostResponse(
-                post.getId(),
-                user.getId(),
-                user.getNickname(),
-                post.getTitle(),
-                post.getContent(),
-                post.getImageUrl(),
-                new PostStatsResponse(likeCount, post.getViewCount()),
-                isLiked,
-                post.getCreatedAt(),
-                post.getUpdatedAt()
-        );
+        return new PostResponse(post, isLiked);
     }
 }
