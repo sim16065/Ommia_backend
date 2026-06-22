@@ -17,7 +17,7 @@ public class FileUploadService {
     @Value("${file.upload.local.dir}")
     private String uploadDir;
 
-    public String upload(MultipartFile file, String directory) {
+    public String uploadFile(MultipartFile file, String directory) {
         try {
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || !originalFilename.contains(".")) {
@@ -25,7 +25,7 @@ public class FileUploadService {
             }
 
             String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            if (!extension.matches("\\.(jpg|jpeg|png|gif|webp)")) {
+            if (!extension.matches("\\.(jpg|jpeg|png)")) {
                 throw new CustomException(ErrorCode.INVALID_IMAGE_FORMAT);
             }
 
@@ -42,7 +42,17 @@ public class FileUploadService {
         } catch (IOException e) {
             throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
+    }
 
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null) return;
 
+        try {
+            String relativePath = fileUrl.replace("/uploads/", "");
+            Path filePath = Paths.get(uploadDir, relativePath);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_DELETE_FAILED);
+        }
     }
 }

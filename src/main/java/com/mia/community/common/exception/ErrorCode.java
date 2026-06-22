@@ -6,7 +6,8 @@ public enum ErrorCode {
     UNAUTHORIZED(401, "로그인이 필요한 서비스입니다."),
     INVALID_IMAGE_FORMAT(400, "올바른 이미지 형식이 아닙니다."),
     INVALID_FILE(400, "올바르지 않은 파일입니다."),
-    FILE_UPLOAD_FAILED(500, "파일 업로드에 실패하였습니다."),
+    FILE_UPLOAD_FAILED(500, "파일 업로드에 실패했습니다."),
+    FILE_DELETE_FAILED(500, "파일 삭제에 실패했습니다."),
     INTERNAL_SERVER_ERROR(500, "서버 오류가 발생했습니다."),
 
     // Auth

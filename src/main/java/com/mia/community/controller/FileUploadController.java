@@ -23,14 +23,14 @@ public class FileUploadController {
     @PostMapping("/profile")
     public ResponseEntity<ApiResponse<ProfileImageResponse>> uploadProfileImage(
                 @RequestParam("profileImage")MultipartFile file) {
-            String fileUrl = fileUploadService.upload(file, "profile");
+            String fileUrl = fileUploadService.uploadFile(file, "profile");
             return ResponseEntity.ok(ApiResponse.success("프로필 이미지가 업로드되었습니다.",
                     new ProfileImageResponse(fileUrl)));
         }
     @PostMapping("/post")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadPostImage(
                 @RequestParam("postImage") MultipartFile file) {
-        String fileUrl = fileUploadService.upload(file, "post");
+        String fileUrl = fileUploadService.uploadFile(file, "post");
         return ResponseEntity.ok(ApiResponse.success("게시물 이미지가 업로드되었습니다.", new FileUploadResponse(fileUrl)));
     }
 }

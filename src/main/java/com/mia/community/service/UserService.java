@@ -17,11 +17,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
 
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder, FileUploadService fileUploadService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileUploadService = fileUploadService;
     }
 
     // 사용자 프로필 조회
@@ -60,6 +62,11 @@ public class UserService {
         if (!user.getNickname().equals(request.getNickname())
                 && userRepository.existsByNickname(request.getNickname())) {
             throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+
+        // 기존 이미지와 새 이미지가 다르면 기존 이미지 삭제 (기존 이미지가 null 이 아닌 경우)
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().equals(request.getProfileImageUrl())) {
+            fileUploadService.deleteFile(user.getProfileImageUrl());
         }
 
         user.updateProfile(request.getNickname(), request.getProfileImageUrl());
