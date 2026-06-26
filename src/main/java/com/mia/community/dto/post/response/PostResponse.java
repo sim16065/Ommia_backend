@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 // 게시물 응답 반환 시, id가 맨앞에 오게끔 순서 명시
 @JsonPropertyOrder({"id", "userId", "nickname", "profileImageUrl", "title", "content", "imageUrl", "stats", "isLiked", "createdAt", "updatedAt"})
 public class PostResponse {
-    private final Long postId;
+    private final Long id;
     private final Long userId;
     private final String nickname;
     private final String profileImageUrl;
@@ -22,7 +22,7 @@ public class PostResponse {
     private final LocalDateTime updatedAt;
 
     public PostResponse(Post post, boolean isLiked) {
-        this.postId = post.getId();
+        this.id = post.getId();
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.profileImageUrl = post.getUser().getProfileImageUrl();
@@ -37,7 +37,7 @@ public class PostResponse {
         this.updatedAt = post.getUpdatedAt();
     }
 
-    public Long getId() { return postId; }
+    public Long getId() { return id; }
     public Long getUserId() { return userId; }
     public String getNickname() { return nickname; }
     public String getProfileImageUrl() { return profileImageUrl; }
