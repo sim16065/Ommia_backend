@@ -103,7 +103,7 @@ public class PostService {
     }
 
     // Post 엔티티를 PostResponse DTO로 변환
-    // 좋아요 수는 Post 엔티티에 저장된 값이 아니므로 post_likes 테이블에서 별도로 조회
+    // 좋아요 여부는 Post 엔티티에 저장된 값이 아니므로 post_likes 테이블에서 별도로 조회
     private PostResponse toResponse(Post post, Long userId) {
         boolean isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), userId); // 좋아요 여부 확인
 
