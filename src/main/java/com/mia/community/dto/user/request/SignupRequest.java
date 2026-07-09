@@ -25,7 +25,7 @@ public class SignupRequest {
     @Pattern(regexp = "^\\S+$", message = ValidationMessage.NICKNAME_INVALID)
     private String nickname;
 
-    private String profileImage;
+    private String profileImageUrl;
 
     public SignupRequest() {
     }
@@ -42,7 +42,7 @@ public class SignupRequest {
         return nickname;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 }

@@ -6,17 +6,17 @@ public class UserResponse {
     private Long userId;
     private String email;
     private String nickname;
-    private String profileImage;
+    private String profileImageUrl;
 
     public UserResponse() {
 
     }
 
-    public UserResponse(Long userId, String email, String nickname, String profileImage) {
+    public UserResponse(Long userId, String email, String nickname, String profileImageUrl) {
         this.userId = userId;
         this.email = email;
         this.nickname = nickname;
-        this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
     }
 
     // Getter
@@ -32,12 +32,12 @@ public class UserResponse {
         return nickname;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     // from() 메서드
     public static UserResponse from(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getProfileImage());
+        return new UserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getProfileImageUrl());
     }
 }

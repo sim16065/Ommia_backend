@@ -21,7 +21,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String nickname;
 
-    private String profileImage;
+    private String profileImageUrl;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -34,11 +34,11 @@ public class User {
     }
 
     // 회원가입 시 사용하는 생성자
-    public User(String email, String password, String nickname, String profileImage) {
+    public User(String email, String password, String nickname, String profileImageUrl) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
     }
 
     @PrePersist
@@ -55,7 +55,7 @@ public class User {
 
     public void updateProfile(String nickname, String profileImage) {
         this.nickname = nickname;
-        this.profileImage = profileImage;
+        this.profileImageUrl = profileImage;
     }
 
     public void changePassword(String encodedPassword) {
@@ -79,8 +79,8 @@ public class User {
         return nickname;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public LocalDateTime getCreatedAt() {
