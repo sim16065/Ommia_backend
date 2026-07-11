@@ -1,0 +1,93 @@
+name: Build and Push Docker Image to GHCR
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Log in to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          # 이미지명 소문자로 정의
+          BASE_IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+              
+          # github_sha 7자만 사용
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          
+          # 한국시간 기준 타임 스탬프 (년월일시분초)
+          TIMESTAMP=$(TZ="Asia/Seoul" date +'%Y%m%d%H%M%S')
+          
+          TAG_NAME="${SHORT_SHA}-${TIMESTAMP}"
+          FULL_IMAGE_TAG="${BASE_IMAGE_NAME}:${TAG_NAME}"
+          
+          echo "생성된 이미지 태그: ${FULL_IMAGE_TAG}"
+          
+          # 5. Buildx 크로스 빌드 후 push
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $FULL_IMAGE_TAG \
+            -t $BASE_IMAGE_NAME:latest \
+            --push .
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Deploy to Private Server
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.PRIVATE_IP }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+
+          proxy_host: ${{ secrets.BASTION_PUBLIC_IP }}
+          proxy_username: ${{ secrets.USERNAME }}
+          proxy_key: ${{ secrets.KEY }}
+          proxy_port: ${{ secrets.PORT }}
+
+          script: |
+            BASE_IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+            # 프라이빗 EC2 내부에서 최신 아티팩트 땡겨오고 교체하기
+            echo "${{ secrets.GHCR_PAT }}" | 
+              docker login ghcr.io \
+                -u ${{ github.actor }} \
+                --password-stdin
+             
+            docker pull $BASE_IMAGE_NAME:latest
+              
+            docker stop ommia-back || true
+            docker rm ommia-back || true
+            docker run -d \
+              --name ommia-back \
+              -p 8080:8080 \
+              $BASE_IMAGE_NAME:latest
+
+            # dangling 이미지 삭제
+            docker image prune -f

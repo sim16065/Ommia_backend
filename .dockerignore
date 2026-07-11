@@ -1,0 +1,11 @@
+.gradle
+.idea
+.git
+.gitignore
+README.md
+*.log
+*.jar
+Dockerfile
+build
+# IDE 컴파일 결과물
+out
