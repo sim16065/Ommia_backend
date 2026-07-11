@@ -52,6 +52,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: production
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
@@ -66,14 +67,13 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-
           proxy_host: ${{ secrets.BASTION_PUBLIC_IP }}
           proxy_username: ${{ secrets.USERNAME }}
           proxy_key: ${{ secrets.KEY }}
           proxy_port: ${{ secrets.PORT }}
-
           script: |
             BASE_IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+            
             # 프라이빗 EC2 내부에서 최신 아티팩트 땡겨오고 교체하기
             echo "${{ secrets.GHCR_PAT }}" | 
               docker login ghcr.io \
@@ -84,9 +84,11 @@ jobs:
               
             docker stop ommia-back || true
             docker rm ommia-back || true
+            
             docker run -d \
               --name ommia-back \
               -p 8080:8080 \
+              --restart always \
               $BASE_IMAGE_NAME:latest
 
             # dangling 이미지 삭제
