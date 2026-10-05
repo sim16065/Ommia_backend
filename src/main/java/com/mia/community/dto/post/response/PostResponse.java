@@ -3,6 +3,7 @@ package com.mia.community.dto.post.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mia.community.entity.Post;
+import com.mia.community.entity.PostStat;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class PostResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public PostResponse(Post post, boolean isLiked) {
+    public PostResponse(Post post, PostStat postStat, boolean isLiked) {
         this.id = post.getId();
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
@@ -30,7 +31,7 @@ public class PostResponse {
         this.content = post.getContent();
         this.imageUrl = post.getImageUrl();
 
-        this.stats = new PostStatsResponse(post.getLikeCount(), post.getViewCount());
+        this.stats = new PostStatsResponse(postStat.getLikeCount(), postStat.getViewCount());
 
         this.isLiked = isLiked;
         this.createdAt = post.getCreatedAt();

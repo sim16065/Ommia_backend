@@ -25,11 +25,8 @@ public class Post {
     @Column
     private String imageUrl;
 
-    @Column(nullable = false)
-    private long likeCount = 0;
-
-    @Column(nullable = false)
-    private long viewCount = 0;
+    @OneToOne(mappedBy = "post", cascade =  CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private PostStat stats;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -44,7 +41,7 @@ public class Post {
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
-        this.viewCount = 0;
+        this.stats = new PostStat(this);
     }
 
     @PrePersist
@@ -80,9 +77,8 @@ public class Post {
     public String getImageUrl() {
         return  imageUrl;
     }
-    public long getLikeCount() { return likeCount; }
-    public long getViewCount() {
-        return viewCount;
+    public PostStat getStats() {
+        return stats;
     }
     public LocalDateTime getCreatedAt() {
         return createdAt;

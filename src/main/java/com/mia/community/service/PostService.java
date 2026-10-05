@@ -10,6 +10,7 @@ import com.mia.community.entity.Post;
 import com.mia.community.entity.User;
 import com.mia.community.repository.PostLikeRepository;
 import com.mia.community.repository.PostRepository;
+import com.mia.community.repository.PostStatRepository;
 import com.mia.community.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,11 +27,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostStatRepository postStatRepository;
     private final UserRepository userRepository;
 
-    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostStatRepository postStatRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
+        this.postStatRepository = postStatRepository;
         this.userRepository = userRepository;
     }
 
@@ -47,7 +50,7 @@ public class PostService {
     // 작성자 정보:  fetch join으로 User 함께 조회
     @Transactional(readOnly = true)
     public PostListResponse getAllPosts(int page) {
-        Page<Post> pageResult = postRepository.findAllWithUser(PageRequest.of(page - 1, DEFAULT_PAGE_SIZE));
+        Page<Post> pageResult = postRepository.findAllWithUserAndStats(PageRequest.of(page - 1, DEFAULT_PAGE_SIZE));
 
         List<PostResponse> data = pageResult.stream()
                 .map(post -> toResponse(post, null))
@@ -66,10 +69,10 @@ public class PostService {
      // 게시물 상세 조회: 조회 시 조회수 1 증가
     @Transactional
      public PostResponse getPost(Long postId, Long userId) {
-         postRepository.increaseViewCount(postId);
+         postStatRepository.increaseViewCount(postId);
 
          // 조회수 반영된 게시물 조회 후 반환
-         Post post = postRepository.findById(postId)
+         Post post = postRepository.findByIdWithUserAndStats(postId)
                  .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
          return toResponse(post, userId);
@@ -107,6 +110,6 @@ public class PostService {
     private PostResponse toResponse(Post post, Long userId) {
         boolean isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), userId); // 좋아요 여부 확인
 
-        return new PostResponse(post, isLiked);
+        return new PostResponse(post, post.getStats(), isLiked);
     }
 }
