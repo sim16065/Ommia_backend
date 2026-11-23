@@ -11,13 +11,13 @@ public class PostStat {
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false, columnDefinition = "INT UNSIGNED")
     private Post post;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
     private long viewCount = 0;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
     private long likeCount = 0;
 
     protected PostStat() {}

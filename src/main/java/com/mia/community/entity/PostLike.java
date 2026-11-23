@@ -11,11 +11,11 @@ import java.util.Objects;
 public class PostLike {
 
     @Id
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
     private Long userId;
 
     @Id
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
     private Long postId;
 
     @Column(nullable = false, updatable = false)
