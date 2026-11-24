@@ -12,6 +12,7 @@ import com.mia.community.repository.CommentRepository;
 import com.mia.community.repository.PostRepository;
 import com.mia.community.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
+    @Transactional(readOnly= true)
     public CommentListResponse getComments(Long postId, Long cursor, int pageSize) {
         validatePostExists(postId);
 
@@ -48,6 +50,7 @@ public class CommentService {
         return new CommentListResponse(data, nextCursor, pageSize, hasNext);
     }
 
+    @Transactional
     public CommentResponse createComment(Long postId, Long userId, CommentCreateRequest request) {
         validatePostExists(postId);
 
@@ -58,6 +61,7 @@ public class CommentService {
         return CommentResponse.from(commentRepository.save(comment));
     }
 
+    @Transactional
     public CommentResponse updateComment(Long postId, Long commentId, Long userId, CommentUpdateRequest request) {
         validatePostExists(postId);
         Comment comment = commentRepository.findById(commentId)
@@ -70,9 +74,11 @@ public class CommentService {
             throw new CustomException(ErrorCode.COMMENT_UPDATE_DENIED );
         }
         comment.update(request.getContent());
-        return CommentResponse.from(commentRepository.save(comment));
+        commentRepository.flush();
+        return CommentResponse.from(comment);
     }
 
+    @Transactional
     public void deleteComment(Long postId, Long commentId, Long userId) {
         validatePostExists(postId);
         Comment comment = commentRepository.findById(commentId)
@@ -84,7 +90,7 @@ public class CommentService {
         if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.COMMENT_DELETE_DENIED );
         }
-        commentRepository.deleteById(commentId);
+        commentRepository.delete(comment);
     }
 
     private void validatePostExists(Long postId) {
