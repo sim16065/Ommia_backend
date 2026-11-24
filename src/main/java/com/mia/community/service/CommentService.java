@@ -7,6 +7,7 @@ import com.mia.community.dto.comment.request.CommentCreateRequest;
 import com.mia.community.dto.comment.request.CommentUpdateRequest;
 import com.mia.community.dto.comment.response.CommentListResponse;
 import com.mia.community.dto.comment.response.CommentResponse;
+import com.mia.community.entity.User;
 import com.mia.community.repository.CommentRepository;
 import com.mia.community.repository.PostRepository;
 import com.mia.community.repository.UserRepository;
@@ -49,7 +50,10 @@ public class CommentService {
 
     public CommentResponse createComment(Long postId, Long userId, CommentCreateRequest request) {
         validatePostExists(postId);
-        Comment comment = new Comment(postId, userId, request.getContent());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Comment comment = new Comment(postId, user, request.getContent());
 
         return CommentResponse.from(commentRepository.save(comment));
     }
@@ -62,7 +66,7 @@ public class CommentService {
         if (!comment.getPostId().equals(postId)) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.COMMENT_UPDATE_DENIED );
         }
         comment.update(request.getContent());
@@ -77,7 +81,7 @@ public class CommentService {
         if (!comment.getPostId().equals(postId)) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.COMMENT_DELETE_DENIED );
         }
         commentRepository.deleteById(commentId);
