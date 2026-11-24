@@ -10,6 +10,7 @@ import com.mia.community.dto.comment.response.CommentResponse;
 import com.mia.community.entity.User;
 import com.mia.community.repository.CommentRepository;
 import com.mia.community.repository.PostRepository;
+import com.mia.community.repository.PostStatRepository;
 import com.mia.community.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +23,13 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final PostStatRepository postStatRepository;
     private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, PostStatRepository postStatRepository, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.postStatRepository = postStatRepository;
         this.userRepository = userRepository;
     }
 
@@ -58,7 +61,9 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Comment comment = new Comment(postId, user, request.getContent());
 
-        return CommentResponse.from(commentRepository.save(comment));
+        Comment saved = commentRepository.save(comment);
+        postStatRepository.increaseCommentCount(postId);
+        return CommentResponse.from(saved);
     }
 
     @Transactional
@@ -91,6 +96,7 @@ public class CommentService {
             throw new CustomException(ErrorCode.COMMENT_DELETE_DENIED );
         }
         commentRepository.delete(comment);
+        postStatRepository.decreaseCommentCount(postId);
     }
 
     private void validatePostExists(Long postId) {

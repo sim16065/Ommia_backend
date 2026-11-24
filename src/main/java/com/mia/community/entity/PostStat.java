@@ -20,6 +20,9 @@ public class PostStat {
     @Column(nullable = false, columnDefinition = "INT UNSIGNED")
     private long likeCount = 0;
 
+    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
+    private long commentCount = 0;
+
     protected PostStat() {}
 
     public PostStat(Post post) {
@@ -30,4 +33,5 @@ public class PostStat {
     public Post getPost() { return post; }
     public Long getViewCount() { return viewCount; }
     public Long getLikeCount() { return likeCount; }
+    public long getCommentCount() { return commentCount; }
 }

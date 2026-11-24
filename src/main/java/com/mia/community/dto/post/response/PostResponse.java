@@ -31,7 +31,7 @@ public class PostResponse {
         this.content = post.getContent();
         this.imageUrl = post.getImageUrl();
 
-        this.stats = new PostStatsResponse(postStat.getLikeCount(), postStat.getViewCount());
+        this.stats = new PostStatsResponse(postStat.getLikeCount(), postStat.getViewCount(), postStat.getCommentCount());
 
         this.isLiked = isLiked;
         this.createdAt = post.getCreatedAt();
