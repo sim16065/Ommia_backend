@@ -8,10 +8,7 @@ import com.mia.community.dto.post.response.PostListResponse;
 import com.mia.community.dto.post.response.PostResponse;
 import com.mia.community.entity.Post;
 import com.mia.community.entity.User;
-import com.mia.community.repository.PostLikeRepository;
-import com.mia.community.repository.PostRepository;
-import com.mia.community.repository.PostStatRepository;
-import com.mia.community.repository.UserRepository;
+import com.mia.community.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -29,12 +26,14 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostStatRepository postStatRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
-    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostStatRepository postStatRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostStatRepository postStatRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
         this.postStatRepository = postStatRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
     public PostResponse createPost(Long userId, PostCreateRequest request) {
@@ -102,6 +101,8 @@ public class PostService {
             throw new CustomException(ErrorCode.POST_DELETE_DENIED);
         }
 
+        commentRepository.deleteByPostId(postId);
+        postLikeRepository.deleteByPostId(postId);
         postRepository.delete(post);
     }
 

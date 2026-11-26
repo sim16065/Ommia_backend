@@ -14,8 +14,9 @@ public class Comment {
     @Column(columnDefinition = "INT UNSIGNED")
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "INT UNSIGNED")
-    private Long postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false, columnDefinition = "INT UNSIGNED")
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, columnDefinition = "INT UNSIGNED")
@@ -32,8 +33,8 @@ public class Comment {
 
     protected Comment() {}
 
-    public Comment(Long postId, User user, String content) {
-        this.postId = postId;
+    public Comment(Post post, User user, String content) {
+        this.post = post;
         this.user = user;
         this.content = content;
     }
@@ -57,7 +58,7 @@ public class Comment {
         return id;
     }
     public Long getPostId() {
-        return postId;
+        return post.getId();
     }
     public User getUser() { return user; }
     public String getContent() {

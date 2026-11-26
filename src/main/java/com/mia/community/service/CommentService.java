@@ -7,6 +7,7 @@ import com.mia.community.dto.comment.request.CommentCreateRequest;
 import com.mia.community.dto.comment.request.CommentUpdateRequest;
 import com.mia.community.dto.comment.response.CommentListResponse;
 import com.mia.community.dto.comment.response.CommentResponse;
+import com.mia.community.entity.Post;
 import com.mia.community.entity.User;
 import com.mia.community.repository.CommentRepository;
 import com.mia.community.repository.PostRepository;
@@ -59,7 +60,8 @@ public class CommentService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Comment comment = new Comment(postId, user, request.getContent());
+        Post post = postRepository.getReferenceById(postId);
+        Comment comment = new Comment(post, user, request.getContent());
 
         Comment saved = commentRepository.save(comment);
         postStatRepository.increaseCommentCount(postId);
