@@ -17,10 +17,10 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false, columnDefinition = "INT UNSIGNED")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 26)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1500)
     private String content;
 
     @Column

@@ -11,6 +11,7 @@ public class PostUpdateRequest {
     private String title;
 
     @NotBlank(message = ValidationMessage.CONTENT_REQUIRED)
+    @Size(max = 1500, message = ValidationMessage.CONTENT_SIZE)
     private String content;
 
     private String imageUrl;
