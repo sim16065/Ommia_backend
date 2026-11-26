@@ -100,8 +100,8 @@ public class CommentService {
     }
 
     private void validatePostExists(Long postId) {
-        postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        if (!postRepository.existsById(postId)) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
     }
 }
