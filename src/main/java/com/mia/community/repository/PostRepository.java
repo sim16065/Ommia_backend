@@ -31,6 +31,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         from Post p
         join fetch p.user
         join fetch p.stats
+        order by p.id desc
     """,
             countQuery = "select count(p) from Post p"
     )
