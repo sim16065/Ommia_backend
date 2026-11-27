@@ -7,6 +7,8 @@ import com.mia.community.dto.comment.response.CommentListResponse;
 import com.mia.community.dto.comment.response.CommentResponse;
 import com.mia.community.service.CommentService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ public class CommentController {
     public ResponseEntity<ApiResponse<CommentListResponse>> getComments(
             @PathVariable Long postId,
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "10") @Min(1) @Max(50) int pageSize) {
         CommentListResponse response = commentService.getComments(postId, cursor, pageSize);
         return ResponseEntity.ok( ApiResponse.success("댓글을 성공적으로 불러왔습니다.", response));
     }
