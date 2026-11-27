@@ -11,40 +11,56 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "INT UNSIGNED")
     private Long id;
 
-    @Column(nullable = false)
-    private Long postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false, columnDefinition = "INT UNSIGNED")
+    private Post post;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "INT UNSIGNED")
+    private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1500)
     private String content;
 
-    private final LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public Comment(Long postId, Long userId, String content) {
-        this.postId = postId;
-        this.userId = userId;
+    protected Comment() {}
+
+    public Comment(Post post, User user, String content) {
+        this.post = post;
+        this.user = user;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 
     public void update(String content) {
         this.content = content;
-        this.updatedAt = LocalDateTime.now();
     }
-
     public Long getId() {
         return id;
     }
     public Long getPostId() {
-        return postId;
+        return post.getId();
     }
-    public Long getUserId() { return userId; }
+    public User getUser() { return user; }
     public String getContent() {
         return content;
     }

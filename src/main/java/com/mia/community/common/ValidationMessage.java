@@ -21,6 +21,8 @@ public final class ValidationMessage {
 
     public static final String TITLE_REQUIRED = "제목을 입력해주세요.";
     public static final String TITLE_SIZE = "제목은 최대 26자까지 입력 가능합니다.";
+    public static final String CONTENT_SIZE = "내용은 최대 1500자까지 입력 가능합니다.";
 
+    public static final String COMMENT_SIZE = "댓글은 최대 1500자까지 입력 가능합니다.";
     public static final String CONTENT_REQUIRED = "내용을 입력해주세요.";
 }

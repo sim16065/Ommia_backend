@@ -7,6 +7,7 @@ import com.mia.community.dto.post.response.PostListResponse;
 import com.mia.community.dto.post.response.PostResponse;
 import com.mia.community.service.PostService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class PostController {
     // 게시물 전체 조회
     @GetMapping
     public ResponseEntity<ApiResponse<PostListResponse>> getAllPosts(
-            @RequestParam(defaultValue = "1") int page) {
+            @RequestParam(defaultValue = "1") @Min(1) int page) {
         PostListResponse response = postService.getAllPosts(page);
         return ResponseEntity.ok( ApiResponse.success("게시물 목록을 성공적으로 불러왔습니다.",  response));
     }

@@ -21,4 +21,12 @@ public interface PostStatRepository extends JpaRepository<PostStat, Long> {
 
     @Query("select ps.likeCount from PostStat ps where ps.postId = :postId")
     long findLikeCountByPostId(Long postId);
+
+    @Modifying
+    @Query("update PostStat ps set ps.commentCount = ps.commentCount + 1 where ps.postId = :postId")
+    void increaseCommentCount(Long postId);
+
+    @Modifying
+    @Query("update PostStat ps set ps.commentCount = ps.commentCount - 1 where ps.postId = :postId and ps.commentCount > 0")
+    void decreaseCommentCount(Long postId);
 }

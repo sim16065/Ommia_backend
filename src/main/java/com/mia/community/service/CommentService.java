@@ -7,10 +7,14 @@ import com.mia.community.dto.comment.request.CommentCreateRequest;
 import com.mia.community.dto.comment.request.CommentUpdateRequest;
 import com.mia.community.dto.comment.response.CommentListResponse;
 import com.mia.community.dto.comment.response.CommentResponse;
+import com.mia.community.entity.Post;
+import com.mia.community.entity.User;
 import com.mia.community.repository.CommentRepository;
 import com.mia.community.repository.PostRepository;
+import com.mia.community.repository.PostStatRepository;
 import com.mia.community.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,14 +24,17 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final PostStatRepository postStatRepository;
     private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, PostStatRepository postStatRepository, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.postStatRepository = postStatRepository;
         this.userRepository = userRepository;
     }
 
+    @Transactional(readOnly= true)
     public CommentListResponse getComments(Long postId, Long cursor, int pageSize) {
         validatePostExists(postId);
 
@@ -47,13 +54,21 @@ public class CommentService {
         return new CommentListResponse(data, nextCursor, pageSize, hasNext);
     }
 
+    @Transactional
     public CommentResponse createComment(Long postId, Long userId, CommentCreateRequest request) {
         validatePostExists(postId);
-        Comment comment = new Comment(postId, userId, request.getContent());
 
-        return CommentResponse.from(commentRepository.save(comment));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Post post = postRepository.getReferenceById(postId);
+        Comment comment = new Comment(post, user, request.getContent());
+
+        Comment saved = commentRepository.save(comment);
+        postStatRepository.increaseCommentCount(postId);
+        return CommentResponse.from(saved);
     }
 
+    @Transactional
     public CommentResponse updateComment(Long postId, Long commentId, Long userId, CommentUpdateRequest request) {
         validatePostExists(postId);
         Comment comment = commentRepository.findById(commentId)
@@ -62,13 +77,15 @@ public class CommentService {
         if (!comment.getPostId().equals(postId)) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.COMMENT_UPDATE_DENIED );
         }
         comment.update(request.getContent());
-        return CommentResponse.from(commentRepository.save(comment));
+        commentRepository.flush();
+        return CommentResponse.from(comment);
     }
 
+    @Transactional
     public void deleteComment(Long postId, Long commentId, Long userId) {
         validatePostExists(postId);
         Comment comment = commentRepository.findById(commentId)
@@ -77,15 +94,16 @@ public class CommentService {
         if (!comment.getPostId().equals(postId)) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.COMMENT_DELETE_DENIED );
         }
-        commentRepository.deleteById(commentId);
+        commentRepository.delete(comment);
+        postStatRepository.decreaseCommentCount(postId);
     }
 
     private void validatePostExists(Long postId) {
-        postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        if (!postRepository.existsById(postId)) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
     }
 }
