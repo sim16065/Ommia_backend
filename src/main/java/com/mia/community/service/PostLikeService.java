@@ -7,6 +7,7 @@ import com.mia.community.entity.PostLike;
 import com.mia.community.repository.PostLikeRepository;
 import com.mia.community.repository.PostRepository;
 import com.mia.community.repository.PostStatRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,12 @@ public class PostLikeService {
             throw new CustomException(ErrorCode.ALREADY_LIKED_POST);
         }
 
-        postLikeRepository.save(new PostLike(userId, postId));
+        try {
+            postLikeRepository.saveAndFlush(new PostLike(userId, postId));
+        } catch (DataIntegrityViolationException e) {
+            throw new CustomException(ErrorCode.ALREADY_LIKED_POST);
+        }
+
         postStatRepository.increaseLikeCount(postId);
 
         return new PostLikeResponse(true, getLikeCount(postId));
